@@ -41,7 +41,7 @@ character's case to complete the round.
 
 ## Installation
 
-Works on Neovim 0.5 and later. Verified on 0.12.6.
+Works on Neovim 0.7 and later. Verified on 0.12.6.
 
 1. Use your favorite plugin manager to install! Only works on Nvim, the one true
    vim.
