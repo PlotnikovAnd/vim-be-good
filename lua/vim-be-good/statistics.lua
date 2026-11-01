@@ -23,6 +23,11 @@ end
 function statistics:logResult(result)
     if self.saveStats then
         local fp = io.open(self.file, "a")
+        if not fp then
+            log.warn("Statistics: cannot open", self.file)
+            return
+        end
+
         local str = string.format("%s,%s,%s,%s,%s,%f\n",
         result.timestamp, result.roundNum, result.difficulty, result.roundName, result.success, result.time)
         fp:write(str)
