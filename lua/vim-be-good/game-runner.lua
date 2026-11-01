@@ -157,17 +157,24 @@ function GameRunner:checkForNext()
     log.info("GameRunner:checkForNext")
 
     local lines = self.window.buffer:getGameLines()
-    local expectedLines, optionLine = self:renderEndGame()
+    local expectedLines = self:renderEndGame()
+
+    -- The user deletes a line, so find the first index where the two lists differ.
     local idx = 0
     local found = false
+    local commonLen = math.min(#lines, #expectedLines)
 
-    repeat
+    while idx < commonLen and not found do
         idx = idx + 1
         found = lines[idx] ~= expectedLines[idx]
-    until idx == #lines or found
+    end
 
-    if found == false then
-        return
+    if not found then
+        -- Deleting the last line leaves every other line in place.
+        if #lines == #expectedLines then
+            return
+        end
+        idx = commonLen + 1
     end
 
     local item = expectedLines[idx]
