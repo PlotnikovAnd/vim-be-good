@@ -64,8 +64,11 @@ function RelativeRound:render()
     local cursorIdx
     if goHigh then
         cursorIdx = math.random(deleteMeIdx + 1, 20)
-    else
+    elseif deleteMeIdx > 1 then
         cursorIdx = math.random(1, deleteMeIdx - 1)
+    else
+        -- "DELETE_ME" is on line 1, so the cursor has to start below it.
+        cursorIdx = 2
     end
 
     lines[deleteMeIdx] = " DELETE_ME"
