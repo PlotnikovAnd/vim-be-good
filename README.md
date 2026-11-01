@@ -33,10 +33,10 @@ harder difficulties: `easy` up to 10 columns, `medium` up to 16, `hard` up to 24
 `nightmare` up to 32, `tpope` up to 40.
 
 ```vim
-" fixed column, overrides the random indent
+" fixed column, overrides the random indent on every difficulty
 let g:vim_be_good_delete_me_fixed_offset = 20
 
-" random indent up to N columns, overrides the difficulty default
+" random indent up to N columns on the other difficulties, replaces their default
 let g:vim_be_good_delete_me_random_offset = 12
 ```
 

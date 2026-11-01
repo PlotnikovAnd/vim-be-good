@@ -104,8 +104,30 @@ do
         seen = seen or offset > 0
     end
     check("relative: random offset caps the difficulty default", capped and seen)
+
+    local noobCapped = true
+    for _ = 1, 200 do
+        if indent("noob", { vim_be_good_delete_me_random_offset = 5 }) ~= 0 then
+            noobCapped = false
+        end
+    end
+    check("relative: random offset keeps noob at the start of the line", noobCapped)
+
     vim.g.vim_be_good_delete_me_fixed_offset = nil
     vim.g.vim_be_good_delete_me_random_offset = nil
+
+    -- a narrow window must still show the whole target line
+    local narrow = Relative:new("tpope", { config = { width = 20, height = 30 } })
+    local widest, wraps = 0, false
+    for _ = 1, 200 do
+        for _, line in ipairs(narrow:render()) do
+            widest = math.max(widest, #line)
+            if #line > 20 then
+                wraps = true
+            end
+        end
+    end
+    check("relative: indent fits a 20 column window", not wraps and widest == 19, widest .. " columns")
 end
 
 -- relative: a fractional window height must not break the cursor range.

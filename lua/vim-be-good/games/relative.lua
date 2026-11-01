@@ -44,13 +44,21 @@ local function readOffset(name)
 end
 
 local function columnOffset(round)
-    local limit = math.max(0, ((round.window and round.window.config and round.window.config.width) or 80) - 10)
+    local width = (round.window and round.window.config and round.window.config.width) or 80
+    -- 9 columns of DELETE_ME plus one spare, so the target line never wraps.
+    local limit = math.max(0, math.floor(width) - 10)
 
     local offset
     if round.fixedOffset then
         offset = round.fixedOffset
     else
-        offset = math.random(0, round.randomOffset or defaultMaxOffset[round.difficulty] or 0)
+        local max = defaultMaxOffset[round.difficulty] or 0
+        -- noob always starts at the beginning of the line; the option applies to
+        -- the other difficulties, where it replaces their default.
+        if round.randomOffset and round.difficulty ~= "noob" then
+            max = round.randomOffset
+        end
+        offset = math.random(0, max)
     end
 
     return math.min(offset, limit)
