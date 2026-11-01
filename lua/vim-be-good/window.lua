@@ -75,9 +75,7 @@ function WindowHandler:onResize()
     end
 
     local ok, msg = pcall(function()
-        print("onResize before", vim.inspect(self.config))
         self.config = generateConfig(self.rowPadding, self.colPadding)
-        print("onResize", vim.inspect(self.config))
         self:show()
     end)
 
