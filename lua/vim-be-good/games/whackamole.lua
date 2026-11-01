@@ -77,10 +77,11 @@ function WhackAMoleRound:render()
 
     self.__winLine = winSentence
 
-    -- Start anywhere on the line, so the round needs w/b as well as h/l.
+    -- Start anywhere on the line instead of always at column 0 (#74).
     local cursorCol = math.random(0, math.max(0, #sentence - 1))
     if cursorCol == chosenLocation - 1 then
         -- Do not hand the round over by starting on the target character.
+        -- The last column has no right neighbour, so that case wraps to the start.
         cursorCol = (cursorCol + 1) % math.max(1, #sentence)
     end
 
