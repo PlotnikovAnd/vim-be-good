@@ -276,23 +276,30 @@ function GameRunner:renderEndGame()
 
     self.ended = true
 
-    -- TODO: Make this a bit better especially with random.
+    local gameNames = {}
+    local seen = {}
+    for _, name in ipairs(self.results.games) do
+        if not seen[name] then
+            seen[name] = true
+            table.insert(gameNames, name)
+        end
+    end
+
     table.insert(lines, string.format("%d / %d completed successfully", self.results.successes, self.config.roundCount))
     table.insert(lines, string.format("Average %.2f", sum / self.config.roundCount))
-    table.insert(lines, string.format("Game Type %s", self.results.games[1]))
+    table.insert(lines, string.format("Game Type %s", table.concat(gameNames, ", ")))
 
     for idx = 1, 3 do
         table.insert(lines, "")
     end
 
     table.insert(lines, "Where do you want to go next? (Delete Line)")
-    local optionLine = #lines + 1
 
     table.insert(lines, "Menu")
     table.insert(lines, "Replay")
     table.insert(lines, "Quit (or just ZZ like a real man)")
 
-    return lines, optionLine
+    return lines
 end
 
 function GameRunner:endGame()
