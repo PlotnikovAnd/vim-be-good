@@ -22,6 +22,8 @@ end
 
 function statistics:logResult(result)
     if self.saveStats then
+        vim.fn.mkdir(vim.fn.stdpath("data"), "p")
+
         local fp = io.open(self.file, "a")
         if not fp then
             log.warn("Statistics: cannot open", self.file)
