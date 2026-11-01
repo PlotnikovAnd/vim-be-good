@@ -40,6 +40,35 @@ let g:vim_be_good_delete_me_fixed_offset = 20
 let g:vim_be_good_delete_me_random_offset = 12
 ```
 
+### Game length
+
+```vim
+" rounds per game, 10 by default; noob is endless and ignores this
+let g:vim_be_good_round_count = 15
+```
+
+The old dashed name `g:vim-be-good-round-count` still works.
+
+### Statistics
+
+Results are not saved by default. Turn saving on and every finished round appends
+a line to `stdpath("data")/VimBeGoodStats.log`:
+
+```vim
+let g:vim_be_good_save_statistics = 1
+```
+
+Each line is `timestamp,roundNumber,difficulty,game,success,seconds`.
+
+### Game window
+
+The game window keeps a margin around itself; both values are in rows and columns:
+
+```vim
+let g:vim_be_good_window_padding_row = 6
+let g:vim_be_good_window_padding_col = 6
+```
+
 ## Instructions are at the top of games.
 
 here too!
