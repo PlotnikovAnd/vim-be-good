@@ -88,13 +88,16 @@ end
 
 local function getRoundCount(difficulty)
     -- Upstream used the dashed name; accept the underscore form the other
-    -- options use as well.
+    -- options use as well. Vim script rejects dashes in variable names, so the
+    -- dashed one is only reachable from Lua.
     local roundCount = tonumber(vim.g["vim_be_good_round_count"])
         or tonumber(vim.g["vim-be-good-round-count"])
         or 10
 
     if difficulty == "noob" then
         roundCount = 100000
+    elseif roundCount then
+        roundCount = math.max(1, math.floor(roundCount))
     end
 
     return roundCount

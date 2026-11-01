@@ -288,6 +288,12 @@ do
     vim.g.vim_be_good_round_count = 3
     check("rounds: underscore option is read", GameUtils.getRoundCount("easy") == 3, GameUtils.getRoundCount("easy"))
 
+    vim.g.vim_be_good_round_count = "7"
+    check("rounds: a string value is converted", GameUtils.getRoundCount("easy") == 7, GameUtils.getRoundCount("easy"))
+
+    vim.g.vim_be_good_round_count = 0
+    check("rounds: a value below 1 counts as 1", GameUtils.getRoundCount("easy") == 1, GameUtils.getRoundCount("easy"))
+
     vim.g.vim_be_good_round_count = nil
     vim.g["vim-be-good-round-count"] = 4
     check("rounds: dashed option still works", GameUtils.getRoundCount("easy") == 4, GameUtils.getRoundCount("easy"))
