@@ -123,7 +123,7 @@ function Buffer:getGameLines()
     local lines = vim.api.nvim_buf_get_lines(
         self.bufh, startOffset, startOffset + len, false)
 
-    log.info("Buffer:getGameLines", startOffset, len, vim.inspect(lines))
+    log.info("Buffer:getGameLines", startOffset, len)
 
     return lines
 end
