@@ -23,12 +23,47 @@ local function boardRows(window)
     return math.max(minBoardRows, math.min(maxBoardRows, rows))
 end
 
+-- Right-hand indent for the target, so a harder round needs a longer look at the
+-- line number before jumping (upstream #67, #72).
+local defaultMaxOffset = {
+    noob = 0,
+    easy = 10,
+    medium = 16,
+    hard = 24,
+    nightmare = 32,
+    tpope = 40,
+}
+
+local function readOffset(name)
+    local value = tonumber(vim.g[name])
+    if not value then
+        return nil
+    end
+
+    return math.max(0, math.floor(value))
+end
+
+local function columnOffset(round)
+    local limit = math.max(0, ((round.window and round.window.config and round.window.config.width) or 80) - 10)
+
+    local offset
+    if round.fixedOffset then
+        offset = round.fixedOffset
+    else
+        offset = math.random(0, round.randomOffset or defaultMaxOffset[round.difficulty] or 0)
+    end
+
+    return math.min(offset, limit)
+end
+
 local RelativeRound = {}
 function RelativeRound:new(difficulty, window)
     log.info("New", difficulty, window)
     local round = {
         window = window,
         difficulty = difficulty,
+        fixedOffset = readOffset("vim_be_good_delete_me_fixed_offset"),
+        randomOffset = readOffset("vim_be_good_delete_me_random_offset"),
     }
 
     self.__index = self
@@ -78,7 +113,7 @@ function RelativeRound:render()
         cursorIdx = 2
     end
 
-    lines[deleteMeIdx] = " DELETE_ME"
+    lines[deleteMeIdx] = string.rep(" ", columnOffset(self)) .. "DELETE_ME"
 
     return lines, cursorIdx
 end

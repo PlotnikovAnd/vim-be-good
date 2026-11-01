@@ -59,6 +59,55 @@ do
     vim.o.lines, vim.o.columns = savedLines, savedColumns
 end
 
+-- relative: the target indent follows the difficulty and the two options.
+do
+    local Relative = require("vim-be-good.games.relative")
+    local function indent(difficulty, options)
+        vim.g.vim_be_good_delete_me_fixed_offset = nil
+        vim.g.vim_be_good_delete_me_random_offset = nil
+        for name, value in pairs(options or {}) do
+            vim.g[name] = value
+        end
+        local round = Relative:new(difficulty, { config = { width = 80, height = 30 } })
+        for _, line in ipairs(round:render()) do
+            local pad = line:match("^( *)DELETE_ME$")
+            if pad then
+                return #pad
+            end
+        end
+    end
+
+    local noobOk, easyMax = true, 0
+    for _ = 1, 200 do
+        if indent("noob") ~= 0 then
+            noobOk = false
+        end
+        easyMax = math.max(easyMax, indent("easy"))
+    end
+    check("relative: noob keeps the target at the start of the line", noobOk)
+    check("relative: easy indents up to 10 columns", easyMax <= 10 and easyMax > 3, easyMax .. " columns")
+
+    local fixedOk = true
+    for _ = 1, 50 do
+        if indent("nightmare", { vim_be_good_delete_me_fixed_offset = 7 }) ~= 7 then
+            fixedOk = false
+        end
+    end
+    check("relative: fixed offset is honoured", fixedOk)
+
+    local capped, seen = true, false
+    for _ = 1, 200 do
+        local offset = indent("tpope", { vim_be_good_delete_me_random_offset = 3 })
+        if offset < 0 or offset > 3 then
+            capped = false
+        end
+        seen = seen or offset > 0
+    end
+    check("relative: random offset caps the difficulty default", capped and seen)
+    vim.g.vim_be_good_delete_me_fixed_offset = nil
+    vim.g.vim_be_good_delete_me_random_offset = nil
+end
+
 -- relative: a fractional window height must not break the cursor range.
 do
     local WindowHandler = require("vim-be-good.window")
