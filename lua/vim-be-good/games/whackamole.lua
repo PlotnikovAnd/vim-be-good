@@ -46,6 +46,8 @@ function WhackAMoleRound:render()
 
     local foundLocation = false
     local chosenLocation = 0
+    -- shortcut: the loop relies on every sentence containing a letter, upgrade
+    -- to a precomputed letter index if sentences ever get punctuation only.
     while not foundLocation do
         local location = math.random(1, string.len(sentence))
         -- Only letters can flip case, so only letters make the round winnable.
