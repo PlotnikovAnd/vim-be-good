@@ -1,6 +1,7 @@
 local bind = require("vim-be-good.bind")
 local log = require("vim-be-good.log")
 local createEmpty = require("vim-be-good.game-utils").createEmpty
+local unpack = unpack or table.unpack
 
 local Buffer = {}
 function Buffer:new(bufh, window)
@@ -57,9 +58,11 @@ function Buffer:_scheduledOnLine(...)
     end
 end
 
-function Buffer:onLine(buf, changedtick, firstline, lastline, linedata, more)
+function Buffer:onLine(...)
+    local count = select("#", ...)
+    local args = { ... }
     vim.schedule(function()
-        self:_scheduledOnLine(buf, changedtick, firstline, lastline, linedata, more)
+        self:_scheduledOnLine(unpack(args, 1, count))
     end)
 end
 

@@ -1,6 +1,5 @@
-local function bind(t, k, ...)
-    local args = {...} or {}
-    return function(...) return t[k](t, unpack(args), ...) end
+local function bind(t, k)
+    return function(...) return t[k](t, ...) end
 end
 
 return bind
