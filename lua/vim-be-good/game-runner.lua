@@ -10,7 +10,7 @@ local Snake = require("vim-be-good.games.snake");
 local log = require("vim-be-good.log");
 local statistics = require("vim-be-good.statistics");
 
-Stats = statistics:new()
+local Stats = statistics:new()
 
 local endStates = {
     menu = "Menu",
@@ -123,7 +123,7 @@ end
 
 function GameRunner:countdown(count, cb)
     local self = self
-    ok, msg = pcall(function()
+    local ok, msg = pcall(function()
         if count > 0 then
             local str = string.format("Game Starts in %d", count)
 
