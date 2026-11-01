@@ -96,11 +96,12 @@ local function getRoundCount(difficulty)
     return roundCount
 end
 
-local function getRandomInsertionLocation(lineCount, textLines, topOffset)
+local function getRandomInsertionLocation(lineCount, textLines)
     textLines = textLines or 1
-    topOffset = topOffset or 0
 
-    return math.random(topOffset, lineCount - textLines - topOffset)
+    -- The lines table is 1-based: a low bound of 0 lets math.random return 0,
+    -- and nvim_buf_set_lines rejects a table that has an index 0.
+    return math.random(1, math.max(1, lineCount - textLines))
 end
 
 local function getRandomSentence()

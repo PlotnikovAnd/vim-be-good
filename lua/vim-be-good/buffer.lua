@@ -95,6 +95,9 @@ function Buffer:render(lines)
 
     log.info("Buffer:Rendering")
     vim.api.nvim_buf_set_lines(self.bufh, idx, idx + #lines, false, lines)
+    -- A previous, longer render leaves lines behind; the menu counts lines to
+    -- detect a deletion, so leftovers make it ignore the selection.
+    vim.api.nvim_buf_set_lines(self.bufh, idx + #lines, -1, false, {})
 end
 
 function Buffer:debugLine(line)

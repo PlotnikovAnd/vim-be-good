@@ -128,6 +128,12 @@ copy paste it into the issues.
     You can also just use nvim --cmd "set rtp+=$(pwd)" . to set your current
     run time path
 
+-   Run the headless checks before opening a PR:
+
+```bash
+nvim --headless -u NONE --cmd 'set rtp+=.' -c 'luafile scripts/headless_check.lua' -c 'qa!'
+```
+
 -   Make PR
 
 ## Live on Stream
