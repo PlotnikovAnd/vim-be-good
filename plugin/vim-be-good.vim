@@ -1,4 +1,4 @@
-if has('nvim-0.5')
+if has('nvim-0.7')
     fun! VimBeGood()
         " dont forget to remove this one....
         lua for k in pairs(package.loaded) do if k:match("^vim%-be%-good") then package.loaded[k] = nil end end
@@ -12,5 +12,5 @@ if has('nvim-0.5')
         autocmd VimResized * :lua require("vim-be-good").onVimResize()
     augroup END
 else
-    echo 'You need nvim v0.5 or above to get better at vim'
+    echo 'You need nvim v0.7 or above to get better at vim'
 endif
