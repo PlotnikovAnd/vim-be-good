@@ -47,14 +47,15 @@ let g:vim_be_good_delete_me_random_offset = 12
 let g:vim_be_good_round_count = 15
 ```
 
-Values below 1 count as 1. The upstream name `g:vim-be-good-round-count` is still
-read, but Vim script rejects dashes in variable names, so it is only reachable
-from Lua: `vim.g["vim-be-good-round-count"] = 15`.
+Values below 1 count as 1, and fractions round down. The upstream name
+`g:vim-be-good-round-count` is still read, but Vim script rejects dashes in
+variable names, so it is only reachable from Lua:
+`vim.g["vim-be-good-round-count"] = 15`.
 
 ### Statistics
 
-Results are not saved by default. Set the switch before the plugin loads, and each
-finished round appends a line to `stdpath("data")/VimBeGoodStats.log`:
+Results are not saved by default. Set the switch before the plugin loads, and
+each finished round appends a line to `stdpath("data")/VimBeGoodStats.log`:
 
 ```vim
 let g:vim_be_good_save_statistics = 1
@@ -65,7 +66,7 @@ off value: unset the variable to stop saving.
 
 ### Game window
 
-The game window keeps a margin around itself. Both values are totals split evenly
+The game window keeps a margin around itself. Both values are totals split
 between the two sides, in rows and columns, so 6 means 3 on each side:
 
 ```vim

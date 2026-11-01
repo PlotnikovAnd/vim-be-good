@@ -96,7 +96,7 @@ local function getRoundCount(difficulty)
 
     if difficulty == "noob" then
         roundCount = 100000
-    elseif roundCount then
+    else
         roundCount = math.max(1, math.floor(roundCount))
     end
 
