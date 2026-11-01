@@ -87,7 +87,11 @@ local function getTime()
 end
 
 local function getRoundCount(difficulty)
-    local roundCount = vim.g["vim-be-good-round-count"] or 10
+    -- Upstream used the dashed name; accept the underscore form the other
+    -- options use as well.
+    local roundCount = tonumber(vim.g["vim_be_good_round_count"])
+        or tonumber(vim.g["vim-be-good-round-count"])
+        or 10
 
     if difficulty == "noob" then
         roundCount = 100000
