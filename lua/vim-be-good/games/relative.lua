@@ -7,17 +7,20 @@ local instructions = {
 }
 
 local maxBoardRows = 20
-local minBoardRows = 5
+local minBoardRows = 3
 
 -- The window also shows the debug line and the instructions above the board,
 -- so a small terminal gets a shorter board instead of an unreachable target.
+-- shortcut: below a 12-line terminal the header alone does not fit, upgrade to
+-- hiding the instructions when the window is that small.
 local function boardRows(window)
     local height = window and window.config and window.config.height
     if not height then
         return maxBoardRows
     end
 
-    return math.max(minBoardRows, math.min(maxBoardRows, height - 1 - #instructions))
+    local rows = math.floor(height) - 1 - #instructions
+    return math.max(minBoardRows, math.min(maxBoardRows, rows))
 end
 
 local RelativeRound = {}
