@@ -1,14 +1,7 @@
 local bind = require("vim-be-good.bind")
 local log = require("vim-be-good.log")
-
-local function createEmpty(count)
-    local lines = {}
-    for idx = 1, count, 1 do
-        lines[idx] = ""
-    end
-
-    return lines
-end
+local createEmpty = require("vim-be-good.game-utils").createEmpty
+local unpack = unpack or table.unpack
 
 local Buffer = {}
 function Buffer:new(bufh, window)
@@ -38,7 +31,7 @@ function Buffer:close()
     end
 end
 
-function Buffer:_scheduledOnLine()
+function Buffer:_scheduledOnLine(...)
     if self == nil or self.onChangeList == nil then
         log.info("Memory Leak...", self.bufh, self.window)
         return
@@ -46,8 +39,7 @@ function Buffer:_scheduledOnLine()
 
     for _, fn in ipairs(self.onChangeList) do
 
-        local ok, errMessage = pcall(
-            fn, buf, changedtick, firstline, lastline, linedata, more)
+        local ok, errMessage = pcall(fn, ...)
 
         if not ok then
             log.info("Buffer:_scheduledOnLine: is not ok", errMessage)
@@ -66,9 +58,11 @@ function Buffer:_scheduledOnLine()
     end
 end
 
-function Buffer:onLine(buf, changedtick, firstline, lastline, linedata, more)
+function Buffer:onLine(...)
+    local count = select("#", ...)
+    local args = { ... }
     vim.schedule(function()
-        self:_scheduledOnLine(buf, changedtick, firstline, lastline, linedata, more)
+        self:_scheduledOnLine(unpack(args, 1, count))
     end)
 end
 
@@ -129,7 +123,7 @@ function Buffer:getGameLines()
     local lines = vim.api.nvim_buf_get_lines(
         self.bufh, startOffset, startOffset + len, false)
 
-    log.info("Buffer:getGameLines", startOffset, len, vim.inspect(lines))
+    log.info("Buffer:getGameLines", startOffset, len)
 
     return lines
 end

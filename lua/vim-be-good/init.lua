@@ -86,7 +86,7 @@ local function menu()
             onGameFinish(gameString, difficulty, game, nextState)
         end)
 
-        ok, msg = pcall(function() gameRunner:init() end, debug.traceback)
+        local ok, msg = pcall(function() gameRunner:init() end, debug.traceback)
         if not ok then
             log.info("Error: Menu:new callback", msg)
         end

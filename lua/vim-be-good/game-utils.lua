@@ -73,22 +73,6 @@ local extraWords = {
 
 local spaceByte = string.byte(' ')
 
-local function compareTable(a, b)
-    local found = true
-    local idx = 1
-
-    if #a ~= #b then
-        return false
-    end
-
-    while found and idx < #a do
-        found = a[idx] == b[idx]
-        idx = idx + 1
-    end
-
-    return found
-end
-
 local function createEmpty(count)
     local lines = {}
     for idx = 1, count, 1 do
@@ -173,7 +157,6 @@ return {
     getRandomSentence = getRandomSentence,
     createEmpty = createEmpty,
     getTime = getTime,
-    compareTable = compareTable,
     trimString = trimString,
     trimLines = trimLines,
     filterEmptyLines = filterEmptyLines,

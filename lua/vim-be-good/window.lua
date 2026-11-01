@@ -5,9 +5,9 @@ local WindowHandler = {}
 local function generateConfig(rowPadding, colPadding)
     rowPadding = rowPadding or 6
     colPadding = colPadding or 6
-    local vimStats = vim.api.nvim_list_uis()[1]
-    local w = vimStats.width
-    local h = vimStats.height
+    local ui = vim.api.nvim_list_uis()[1]
+    local w = ui and ui.width or vim.o.columns
+    local h = ui and ui.height or vim.o.lines
 
     local rowHalfPadding = math.floor(rowPadding / 2)
     local colHalfPadding = math.floor(colPadding / 2)
@@ -75,9 +75,7 @@ function WindowHandler:onResize()
     end
 
     local ok, msg = pcall(function()
-        print("onResize before", vim.inspect(self.config))
         self.config = generateConfig(self.rowPadding, self.colPadding)
-        print("onResize", vim.inspect(self.config))
         self:show()
     end)
 

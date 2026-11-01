@@ -1,4 +1,5 @@
 local V = vim.api
+local uv = vim.uv or vim.loop
 local C = require('vim-be-good.games.snakelib.const')
 local Grid = require('vim-be-good.games.snakelib.grid')
 local Snake = require('vim-be-good.games.snakelib.snake')
@@ -56,7 +57,7 @@ function SnakeGame:new(width, height, difficultyLevel, endGameCallback)
         style = 'minimal',
         border = 'rounded',
     })
-    V.nvim_buf_set_option(gridBuf, 'modifiable', false)
+    vim.bo[gridBuf].modifiable = false
     -- Setup key press handlers for h,j,k,l
     for _, key in pairs({'h','j','k','l'}) do
         vim.keymap.set({'n'}, key, function ()
@@ -98,7 +99,7 @@ function SnakeGame:start()
     self.score = 0
     self.food = {}
     self.snake = Snake:new(self.grid.width / 2, self.grid.height / 2, 3, self.noWalls)
-    self.gameTimer = vim.loop.new_timer()
+    self.gameTimer = uv.new_timer()
     self.gameTimer:start(0, self.speed, vim.schedule_wrap(function()
         self:render()
     end))

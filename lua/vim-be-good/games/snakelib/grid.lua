@@ -81,9 +81,9 @@ function Grid:render()
             maxCols = lineLen
         end
     end
-    V.nvim_buf_set_option(self.buf, 'modifiable', true)
+    vim.bo[self.buf].modifiable = true
     V.nvim_buf_set_text(self.buf, 0, 0, rows-1, maxCols, self.lines)
-    V.nvim_buf_set_option(self.buf, 'modifiable', false)
+    vim.bo[self.buf].modifiable = false
 end
 
 return Grid

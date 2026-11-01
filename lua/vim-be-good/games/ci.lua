@@ -53,9 +53,9 @@ function CiRound:checkForWin()
     local concatenated = table.concat(trimmed)
     local lowercased = concatenated:lower()
 
-    log.info("CiRound:checkForWin", vim.inspect(lowercased))
+    log.info("CiRound:checkForWin", lowercased)
 
-    winner = false
+    local winner = false
     if self.config.ifStatement then
         winner = lowercased == "if (" .. self.config.randomWord .. ") {bar}"
     else

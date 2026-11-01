@@ -7,6 +7,9 @@
 -- under the terms of the MIT license. See LICENSE for details.
 
 -- User configuration section
+local use_console = vim.g["vim_be_good_log_console"] or false
+local use_file = vim.g["vim_be_good_log_file"] or false
+
 local default_config = {
   should_inspect = false,
 
@@ -14,16 +17,17 @@ local default_config = {
   plugin = 'VimBeGood',
 
   -- Should print the output to neovim while running
-  use_console = vim.g["vim_be_good_log_console"] or false,
+  use_console = use_console,
 
   -- Should highlighting be used in console (using echohl)
   highlights = true,
 
   -- Should write to a file
-  use_file = vim.g["vim_be_good_log_file"] or false,
+  use_file = use_file,
 
   -- Any messages above this level will be logged.
-  level = "trace",
+  -- Building the message costs time, so keep it verbose only when someone reads it.
+  level = (use_console or use_file) and "trace" or "warn",
 
   -- Level configuration
   modes = {

@@ -24,22 +24,12 @@ if you have any ideas, please submit them either as tickets or as a PR.
 
 Please submit a ticket for your idea!!!
 
-## Options
-
-### Games - relative
-
-By default vim be good returns random offset for game difficulty above noob, if
-you wish to set fixed offset set `vim_be_good_delete_me_offset` to desired
-value.
-
-`let g:vim_be_good_delete_me_offset = 35`
-
 ## Instructions are at the top of games.
 
 here too!
 
 To play `relative` you need to delete the line that
-says `DELETE ME`. Use relative jumps
+says `DELETE_ME`. Use relative jumps
 
 To play `ci{` you need to replace the contents
 inside the _first_ { or [ with bar. HINT, use ci[
@@ -51,7 +41,7 @@ character's case to complete the round.
 
 ## Installation
 
-## MUST USE NEOVIM 5.x!!!!!!
+Works on Neovim 0.7 and later. Verified on 0.12.6.
 
 1. Use your favorite plugin manager to install! Only works on Nvim, the one true
    vim.

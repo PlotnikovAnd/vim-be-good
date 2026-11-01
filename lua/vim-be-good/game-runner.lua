@@ -10,7 +10,7 @@ local Snake = require("vim-be-good.games.snake");
 local log = require("vim-be-good.log");
 local statistics = require("vim-be-good.statistics");
 
-Stats = statistics:new()
+local Stats = statistics:new()
 
 local endStates = {
     menu = "Menu",
@@ -123,7 +123,7 @@ end
 
 function GameRunner:countdown(count, cb)
     local self = self
-    ok, msg = pcall(function()
+    local ok, msg = pcall(function()
         if count > 0 then
             local str = string.format("Game Starts in %d", count)
 
@@ -157,17 +157,24 @@ function GameRunner:checkForNext()
     log.info("GameRunner:checkForNext")
 
     local lines = self.window.buffer:getGameLines()
-    local expectedLines, optionLine = self:renderEndGame()
+    local expectedLines = self:renderEndGame()
+
+    -- The user deletes a line, so find the first index where the two lists differ.
     local idx = 0
     local found = false
+    local commonLen = math.min(#lines, #expectedLines)
 
-    repeat
+    while idx < commonLen and not found do
         idx = idx + 1
         found = lines[idx] ~= expectedLines[idx]
-    until idx == #lines or found
+    end
 
-    if found == false then
-        return
+    if not found then
+        -- Deleting the last line leaves every other line in place.
+        if #lines == #expectedLines then
+            return
+        end
+        idx = commonLen + 1
     end
 
     local item = expectedLines[idx]
@@ -269,23 +276,30 @@ function GameRunner:renderEndGame()
 
     self.ended = true
 
-    -- TODO: Make this a bit better especially with random.
+    local gameNames = {}
+    local seen = {}
+    for _, name in ipairs(self.results.games) do
+        if not seen[name] then
+            seen[name] = true
+            table.insert(gameNames, name)
+        end
+    end
+
     table.insert(lines, string.format("%d / %d completed successfully", self.results.successes, self.config.roundCount))
     table.insert(lines, string.format("Average %.2f", sum / self.config.roundCount))
-    table.insert(lines, string.format("Game Type %s", self.results.games[1]))
+    table.insert(lines, string.format("Game Type %s", table.concat(gameNames, ", ")))
 
     for idx = 1, 3 do
         table.insert(lines, "")
     end
 
     table.insert(lines, "Where do you want to go next? (Delete Line)")
-    local optionLine = #lines + 1
 
     table.insert(lines, "Menu")
     table.insert(lines, "Replay")
     table.insert(lines, "Quit (or just ZZ like a real man)")
 
-    return lines, optionLine
+    return lines
 end
 
 function GameRunner:endGame()
