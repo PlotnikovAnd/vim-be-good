@@ -77,9 +77,14 @@ function WhackAMoleRound:render()
 
     self.__winLine = winSentence
 
-    local cursorIdx =  1
+    -- Start anywhere on the line, so the round needs w/b as well as h/l.
+    local cursorCol = math.random(0, math.max(0, #sentence - 1))
+    if cursorCol == chosenLocation - 1 then
+        -- Do not hand the round over by starting on the target character.
+        cursorCol = (cursorCol + 1) % math.max(1, #sentence)
+    end
 
-    return lines, cursorIdx
+    return lines, 1, cursorCol
 end
 
 function WhackAMoleRound:name()
