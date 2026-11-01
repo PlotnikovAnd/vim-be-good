@@ -76,18 +76,36 @@ do
     check("relative: fractional window height keeps the cursor in range", bad == 0, bad .. " of 500")
 end
 
--- whackamole: only letters can flip case, so only letters may be the target.
+-- whackamole: only letters can flip case, so only letters may be the target,
+-- and the cursor must not always start at column 1 (#74).
 do
     local Whack = require("vim-be-good.games.whackamole")
     local round = Whack:new("easy", { buffer = {} })
-    local instant = 0
+    local instant, columns, onTarget, outside = 0, {}, 0, 0
     for _ = 1, 2000 do
-        local lines = round:render()
+        local lines, cursorLine, cursorCol = round:render()
         if lines[1] == round.__winLine then
             instant = instant + 1
         end
+        if cursorCol == nil or cursorLine ~= 1 or cursorCol < 0 or cursorCol >= #lines[1] then
+            outside = outside + 1
+        else
+            columns[cursorCol] = true
+            if lines[1]:sub(cursorCol + 1, cursorCol + 1) ~= round.__winLine:sub(cursorCol + 1, cursorCol + 1) then
+                onTarget = onTarget + 1
+            end
+        end
     end
+
+    local distinct = 0
+    for _ in pairs(columns) do
+        distinct = distinct + 1
+    end
+
     check("whackamole: no round wins without a move", instant == 0, instant .. " of 2000")
+    check("whackamole: cursor starts at a random column", distinct > 10 and outside == 0,
+        distinct .. " columns, " .. outside .. " outside the line")
+    check("whackamole: cursor never on the target character", onTarget == 0, onTarget .. " of 2000")
 end
 
 -- ci{: the lines table is 1-based, and the round stays winnable.
