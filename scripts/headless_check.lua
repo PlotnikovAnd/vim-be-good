@@ -69,7 +69,7 @@ do
     local bad = 0
     for _ = 1, 500 do
         local board, cursorIdx = round:render()
-        if #board ~= math.floor(#board) or cursorIdx > #board or cursorIdx < 1 then
+        if cursorIdx > #board or cursorIdx < 1 then
             bad = bad + 1
         end
     end
