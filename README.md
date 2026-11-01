@@ -40,6 +40,40 @@ let g:vim_be_good_delete_me_fixed_offset = 20
 let g:vim_be_good_delete_me_random_offset = 12
 ```
 
+### Game length
+
+```vim
+" rounds per game, 10 by default; noob is endless and ignores this
+let g:vim_be_good_round_count = 15
+```
+
+Values below 1 count as 1, and fractions round down. The upstream name
+`g:vim-be-good-round-count` is still read, but Vim script rejects dashes in
+variable names, so it is only reachable from Lua:
+`vim.g["vim-be-good-round-count"] = 15`.
+
+### Statistics
+
+Results are not saved by default. Set the switch before the plugin loads, and
+each finished round appends a line to `stdpath("data")/VimBeGoodStats.log`:
+
+```vim
+let g:vim_be_good_save_statistics = 1
+```
+
+Each line is `timestamp,roundNumber,difficulty,game,success,seconds`. There is no
+off value: unset the variable to stop saving.
+
+### Game window
+
+The game window keeps a margin around itself. Both values are totals split
+between the two sides, in rows and columns, so 6 means 3 on each side:
+
+```vim
+let g:vim_be_good_window_padding_row = 6
+let g:vim_be_good_window_padding_col = 6
+```
+
 ## Instructions are at the top of games.
 
 here too!

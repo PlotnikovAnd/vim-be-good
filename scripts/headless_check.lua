@@ -277,6 +277,34 @@ do
         got ~= nil and got[1] == "lines" and got[2] == bufnr, got and got[1])
 end
 
+-- round count: option names and the endless noob mode.
+do
+    local GameUtils = require("vim-be-good.game-utils")
+
+    vim.g.vim_be_good_round_count = nil
+    vim.g["vim-be-good-round-count"] = nil
+    check("rounds: 10 by default", GameUtils.getRoundCount("easy") == 10, GameUtils.getRoundCount("easy"))
+
+    vim.g.vim_be_good_round_count = 3
+    check("rounds: underscore option is read", GameUtils.getRoundCount("easy") == 3, GameUtils.getRoundCount("easy"))
+
+    vim.g.vim_be_good_round_count = "7"
+    check("rounds: a string value is converted", GameUtils.getRoundCount("easy") == 7, GameUtils.getRoundCount("easy"))
+
+    vim.g.vim_be_good_round_count = 0
+    check("rounds: a value below 1 counts as 1", GameUtils.getRoundCount("easy") == 1, GameUtils.getRoundCount("easy"))
+
+    vim.g.vim_be_good_round_count = nil
+    vim.g["vim-be-good-round-count"] = 4
+    check("rounds: dashed option still works", GameUtils.getRoundCount("easy") == 4, GameUtils.getRoundCount("easy"))
+
+    vim.g.vim_be_good_round_count = 3
+    check("rounds: noob stays endless", GameUtils.getRoundCount("noob") == 100000, GameUtils.getRoundCount("noob"))
+
+    vim.g.vim_be_good_round_count = nil
+    vim.g["vim-be-good-round-count"] = nil
+end
+
 -- window: a headless run has no UI, so the size must come from vim.o.
 do
     local WindowHandler = require("vim-be-good.window")
