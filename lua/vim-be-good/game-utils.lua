@@ -100,7 +100,12 @@ local function getRandomInsertionLocation(lineCount, textLines, topOffset)
     textLines = textLines or 1
     topOffset = topOffset or 0
 
-    return math.random(topOffset, lineCount - textLines - topOffset)
+    -- The lines table is 1-based: math.random(15, -1) returns 0 on LuaJIT, and
+    -- nvim_buf_set_lines rejects a table that has an index 0.
+    local first = math.max(1, topOffset)
+    local last = math.max(first, lineCount - textLines - topOffset)
+
+    return math.random(first, last)
 end
 
 local function getRandomSentence()
