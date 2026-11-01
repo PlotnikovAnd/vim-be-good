@@ -6,6 +6,20 @@ local instructions = {
     "To win the game, delete the line that says \"DELETE_ME\"",
 }
 
+local maxBoardRows = 20
+local minBoardRows = 5
+
+-- The window also shows the debug line and the instructions above the board,
+-- so a small terminal gets a shorter board instead of an unreachable target.
+local function boardRows(window)
+    local height = window and window.config and window.config.height
+    if not height then
+        return maxBoardRows
+    end
+
+    return math.max(minBoardRows, math.min(maxBoardRows, height - 1 - #instructions))
+end
+
 local RelativeRound = {}
 function RelativeRound:new(difficulty, window)
     log.info("New", difficulty, window)
@@ -46,13 +60,14 @@ function RelativeRound:checkForWin()
 end
 
 function RelativeRound:render()
-    local lines = GameUtils.createEmpty(20)
-    local deleteMeIdx = math.random(1, 20)
-    local goHigh = deleteMeIdx < 17 and math.random() > 0.5
+    local rows = boardRows(self.window)
+    local lines = GameUtils.createEmpty(rows)
+    local deleteMeIdx = math.random(1, rows)
+    local goHigh = deleteMeIdx < rows - 3 and math.random() > 0.5
 
     local cursorIdx
     if goHigh then
-        cursorIdx = math.random(deleteMeIdx + 1, 20)
+        cursorIdx = math.random(deleteMeIdx + 1, rows)
     elseif deleteMeIdx > 1 then
         cursorIdx = math.random(1, deleteMeIdx - 1)
     else
