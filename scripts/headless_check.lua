@@ -26,19 +26,54 @@ local function newBuffer()
     return bufnr, window, buffer
 end
 
--- relative: the cursor must never start on the line it has to delete.
+-- relative: the cursor must never start on the line it has to delete, and the
+-- board must fit the window (#138).
 do
+    local WindowHandler = require("vim-be-good.window")
     local Relative = require("vim-be-good.games.relative")
-    local round = Relative:new("easy", {})
-    local onTarget = 0
-    for _ = 1, 2000 do
-        local lines, cursorIdx = round:render()
-        local line = lines[cursorIdx]
-        if not line or line:find("DELETE_ME", 1, true) then
-            onTarget = onTarget + 1
+
+    local onTarget, overflows, firstOverflow = 0, 0, nil
+    local savedLines, savedColumns = vim.o.lines, vim.o.columns
+    for _, lines in ipairs({ 12, 14, 20, 24, 30, 50 }) do
+        vim.o.lines = lines
+        vim.o.columns = 80
+        local window = WindowHandler:new()
+        local round = Relative:new("easy", window)
+
+        for _ = 1, 500 do
+            local board, cursorIdx = round:render()
+            local line = board[cursorIdx]
+            if not line or line:find("DELETE_ME", 1, true) then
+                onTarget = onTarget + 1
+            end
+            if 1 + #round:getInstructions() + #board > window.config.height then
+                overflows = overflows + 1
+                firstOverflow = firstOverflow or lines
+            end
         end
     end
-    check("relative: cursor never on DELETE_ME", onTarget == 0, onTarget .. " of 2000")
+
+    check("relative: cursor never on DELETE_ME", onTarget == 0, onTarget .. " of 3000")
+    check("relative: board fits the window", overflows == 0,
+        overflows .. " renders overflow, first on a " .. tostring(firstOverflow) .. "-line terminal")
+    vim.o.lines, vim.o.columns = savedLines, savedColumns
+end
+
+-- relative: a fractional window height must not break the cursor range.
+do
+    local WindowHandler = require("vim-be-good.window")
+    local Relative = require("vim-be-good.games.relative")
+    local window = WindowHandler:new(5.5, 6)
+    local round = Relative:new("easy", window)
+
+    local bad = 0
+    for _ = 1, 500 do
+        local board, cursorIdx = round:render()
+        if cursorIdx > #board or cursorIdx < 1 then
+            bad = bad + 1
+        end
+    end
+    check("relative: fractional window height keeps the cursor in range", bad == 0, bad .. " of 500")
 end
 
 -- whackamole: only letters can flip case, so only letters may be the target.
