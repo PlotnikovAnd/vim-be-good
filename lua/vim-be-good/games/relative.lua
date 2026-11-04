@@ -10,8 +10,8 @@ local function hints()
 
     return {
         "Goal: delete the line that says DELETE_ME",
-        string.format("Keys: %s / %s to hop by lines, count first (12%s), then %s on that line",
-            Hints.key("j"), Hints.key("k"), Hints.key("j"), Hints.key("dd")),
+        string.format("Keys: count + %s / %s to hop (12j), then %s on that line",
+            Hints.key("j"), Hints.key("k"), Hints.key("dd")),
     }
 end
 

@@ -305,6 +305,40 @@ do
     vim.g["vim-be-good-round-count"] = nil
 end
 
+-- boards: the other games shrink instead of clipping the last row.
+do
+    local games = {
+        hjkl = { module = "vim-be-good.games.hjkl", difficulties = { "noob", "easy", "tpope" } },
+        ["ci{"] = { module = "vim-be-good.games.ci", difficulties = { "easy" } },
+    }
+
+    -- ci{ shows a six-row block, so it needs an 18-line terminal at least.
+    local overflow = {}
+    for _, lines in ipairs({ 20, 24 }) do
+        vim.o.lines = lines
+        vim.o.columns = 80
+        local window = require("vim-be-good.window"):new()
+
+        for name, spec in pairs(games) do
+            for _, difficulty in ipairs(spec.difficulties) do
+                local round = require(spec.module):new(difficulty, window)
+                if round.getConfig then
+                    pcall(round.getConfig, round)
+                end
+                local ok, board = pcall(round.render, round)
+                local needed = 1 + #round:getInstructions() + (ok and #board or 0)
+                if needed > window.config.height then
+                    overflow[#overflow + 1] = string.format("%s/%s@%d:%d>%d",
+                        name, difficulty, lines, needed, window.config.height)
+                end
+            end
+        end
+    end
+    vim.o.lines = 24
+
+    check("boards: hjkl and ci{ fit small terminals", #overflow == 0, table.concat(overflow, " "))
+end
+
 -- hints: every game states the goal and the keys, taken from the loaded config.
 do
     vim.keymap.set("i", "jj", "<Esc>", { desc = "Exit insert mode" })
@@ -396,7 +430,9 @@ do
         end
     end
 
-    check("hints: ci{ wins with the hinted keys in both variants", wins == 2, wins .. " of 2")
+    -- normal! runs without mappings, so this proves the text objects and bar;
+    -- the escape lookup is covered by the checks above.
+    check("hints: ci{ wins with the hinted text objects in both variants", wins == 2, wins .. " of 2")
 end
 
 -- window: a headless run has no UI, so the size must come from vim.o.
