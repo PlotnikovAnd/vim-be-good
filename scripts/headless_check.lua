@@ -305,6 +305,45 @@ do
     vim.g["vim-be-good-round-count"] = nil
 end
 
+-- hints: every game states the goal and the keys, taken from the loaded config.
+do
+    vim.keymap.set("i", "jj", "<Esc>", { desc = "Exit insert mode" })
+
+    local games = {
+        ["ci{"] = "vim-be-good.games.ci",
+        relative = "vim-be-good.games.relative",
+        whackamole = "vim-be-good.games.whackamole",
+        hjkl = "vim-be-good.games.hjkl",
+        words = "vim-be-good.games.words",
+    }
+
+    local short, missing = {}, {}
+    for name, module in pairs(games) do
+        local round = require(module):new("easy", { config = { width = 80, height = 34 } })
+        if round.getConfig then
+            pcall(round.getConfig, round)
+        end
+
+        local hint = round:getInstructions()
+        local joined = table.concat(hint, " | ")
+        if #hint > 4 then
+            short[#short + 1] = name .. ":" .. #hint
+        end
+        if not joined:find("Goal:", 1, true) or not joined:find("Keys:", 1, true) then
+            missing[#missing + 1] = name
+        end
+    end
+
+    check("hints: every game keeps the hint to 4 lines", #short == 0, table.concat(short, " "))
+    check("hints: every game names a goal and keys", #missing == 0, table.concat(missing, " "))
+
+    local ci = require("vim-be-good.games.ci"):new("easy", { config = { width = 80, height = 34 } })
+    ci:getConfig()
+    local ciHint = table.concat(ci:getInstructions(), " | ")
+    check("hints: ci{ names ci{ and ci[", ciHint:find("ci{", 1, true) and ciHint:find("ci[", 1, true) ~= nil)
+    check("hints: ci{ uses the configured escape key", ciHint:find("jj", 1, true) ~= nil, ciHint)
+end
+
 -- window: a headless run has no UI, so the size must come from vim.o.
 do
     local WindowHandler = require("vim-be-good.window")
