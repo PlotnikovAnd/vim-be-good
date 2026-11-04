@@ -6,8 +6,8 @@ local function hints()
 
     return {
         "Goal: put the cursor under the ^ and flip that character's case",
-        string.format("Keys: %s / %s to jump by words, then %s on the character",
-            Hints.key("w"), Hints.key("b"), Hints.key("~")),
+        string.format("Keys: %s / %s for words, %s / %s for characters, then %s",
+            Hints.key("w"), Hints.key("b"), Hints.key("h"), Hints.key("l"), Hints.key("~")),
         "",
     }
 end

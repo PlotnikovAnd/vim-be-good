@@ -7,8 +7,8 @@ local function hints()
 
     return {
         "Goal: delete the word that differs, the other five are the same word",
-        string.format("Keys: %s / %s to reach it, then %s (or %s)",
-            Hints.key("w"), Hints.key("b"), Hints.key("dw"), Hints.key("diw")),
+        string.format("Keys: %s / %s to reach it, then %s",
+            Hints.key("w"), Hints.key("b"), Hints.key("dw")),
     }
 end
 

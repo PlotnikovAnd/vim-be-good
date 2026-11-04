@@ -3,6 +3,15 @@
 
 local Hints = {}
 
+local function leaves_insert(rhs)
+    if not rhs then
+        return false
+    end
+
+    -- Only a plain <Esc> leaves insert mode; "<Esc>a" would re-enter it.
+    return rhs:lower():gsub("%s", "") == "<esc>"
+end
+
 local function mapping(lhs, mode)
     local found = vim.fn.maparg(lhs, mode, false, true)
     if not found or vim.tbl_isempty(found) or not found.rhs or found.rhs == "" then
@@ -25,14 +34,13 @@ end
 -- The key that leaves insert mode: Esc, or the mapping that points at it.
 function Hints.escape()
     for _, lhs in ipairs({ "jj", "jk", "kj" }) do
-        local target = mapping(lhs, "i")
-        if target and target:lower():find("<esc>", 1, true) then
+        if leaves_insert(mapping(lhs, "i")) then
             return lhs
         end
     end
 
     for _, keymap in ipairs(vim.api.nvim_get_keymap("i")) do
-        if keymap.rhs and keymap.rhs:lower():find("<esc>", 1, true) then
+        if leaves_insert(keymap.rhs) then
             return vim.fn.keytrans(keymap.lhs)
         end
     end

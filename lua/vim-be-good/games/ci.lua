@@ -8,7 +8,7 @@ local function hints()
 
     return {
         "Goal: replace what is inside the first { } or [ ] with bar",
-        string.format("Keys: put the cursor inside the brackets, then %s or %s -> bar -> %s",
+        string.format("Keys: cursor inside the brackets -> %s or %s -> bar -> %s",
             Hints.key("ci{"), Hints.key("ci["), Hints.escape()),
         "An if statement keeps its condition: if (x) { bar }",
         "",
