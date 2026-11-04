@@ -344,6 +344,61 @@ do
     check("hints: ci{ uses the configured escape key", ciHint:find("jj", 1, true) ~= nil, ciHint)
 end
 
+-- hints: the lookup must report only keys that really leave insert mode.
+do
+    local Hints = require("vim-be-good.hints")
+
+    vim.keymap.del("i", "jj")
+    check("hints: no mapping falls back to Esc", Hints.escape() == "Esc", Hints.escape())
+
+    vim.keymap.set("i", "jk", "<Esc>a")
+    check("hints: a mapping that re-enters insert mode is refused", Hints.escape() == "Esc", Hints.escape())
+
+    vim.keymap.del("i", "jk")
+    vim.keymap.set("i", "kj", "<Esc>")
+    check("hints: a plain Esc mapping is used", Hints.escape() == "kj", Hints.escape())
+    vim.keymap.del("i", "kj")
+end
+
+-- ci{: the keys named in the hint must actually win the round.
+do
+    local Ci = require("vim-be-good.games.ci")
+    local escape = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
+    local wins = 0
+
+    for variant = 1, 2 do
+        local bufnr, window, buffer = newBuffer()
+        vim.api.nvim_win_set_buf(0, bufnr)
+
+        local round = Ci:new("easy", window)
+        round:getConfig()
+        round.config.ifStatement = variant == 1
+
+        local board = round:render()
+        buffer:setInstructions(round:getInstructions())
+        buffer:render(board)
+
+        local firstLine
+        for idx, text in ipairs(board) do
+            if text == "[" or text:match("^if %(.*%) {$") then
+                firstLine = idx
+                break
+            end
+        end
+
+        local row = #round:getInstructions() + firstLine + 2
+        vim.api.nvim_win_set_cursor(0, { row, 0 })
+        vim.cmd("stopinsert")
+        vim.cmd("silent! normal! " .. (variant == 1 and "ci{bar" or "ci[bar") .. escape)
+
+        if round:checkForWin() then
+            wins = wins + 1
+        end
+    end
+
+    check("hints: ci{ wins with the hinted keys in both variants", wins == 2, wins .. " of 2")
+end
+
 -- window: a headless run has no UI, so the size must come from vim.o.
 do
     local WindowHandler = require("vim-be-good.window")
