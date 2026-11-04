@@ -66,7 +66,8 @@ function HjklRound:checkForWin()
 end
 
 function HjklRound:render()
-    local boardSize = boardSizeOptions[self.difficulty]
+    -- The board shrinks instead of pushing its last row out of the window.
+    local boardSize = GameUtils.boardRows(self.window, #hints(), boardSizeOptions[self.difficulty], 3)
     log.info("HjklRound:render: " .. boardSize)
     local lines = GameUtils.createEmpty(boardSize)
 
