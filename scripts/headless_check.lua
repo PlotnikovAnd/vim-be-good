@@ -305,6 +305,136 @@ do
     vim.g["vim-be-good-round-count"] = nil
 end
 
+-- boards: the other games shrink instead of clipping the last row.
+do
+    local games = {
+        hjkl = { module = "vim-be-good.games.hjkl", difficulties = { "noob", "easy", "tpope" } },
+        ["ci{"] = { module = "vim-be-good.games.ci", difficulties = { "easy" } },
+    }
+
+    -- ci{ shows a six-row block, so it needs an 18-line terminal at least.
+    local overflow = {}
+    for _, lines in ipairs({ 20, 24 }) do
+        vim.o.lines = lines
+        vim.o.columns = 80
+        local window = require("vim-be-good.window"):new()
+
+        for name, spec in pairs(games) do
+            for _, difficulty in ipairs(spec.difficulties) do
+                local round = require(spec.module):new(difficulty, window)
+                if round.getConfig then
+                    pcall(round.getConfig, round)
+                end
+                local ok, board = pcall(round.render, round)
+                local needed = 1 + #round:getInstructions() + (ok and #board or 0)
+                if needed > window.config.height then
+                    overflow[#overflow + 1] = string.format("%s/%s@%d:%d>%d",
+                        name, difficulty, lines, needed, window.config.height)
+                end
+            end
+        end
+    end
+    vim.o.lines = 24
+
+    check("boards: hjkl and ci{ fit small terminals", #overflow == 0, table.concat(overflow, " "))
+end
+
+-- hints: every game states the goal and the keys, taken from the loaded config.
+do
+    vim.keymap.set("i", "jj", "<Esc>", { desc = "Exit insert mode" })
+
+    local games = {
+        ["ci{"] = "vim-be-good.games.ci",
+        relative = "vim-be-good.games.relative",
+        whackamole = "vim-be-good.games.whackamole",
+        hjkl = "vim-be-good.games.hjkl",
+        words = "vim-be-good.games.words",
+    }
+
+    local short, missing = {}, {}
+    for name, module in pairs(games) do
+        local round = require(module):new("easy", { config = { width = 80, height = 34 } })
+        if round.getConfig then
+            pcall(round.getConfig, round)
+        end
+
+        local hint = round:getInstructions()
+        local joined = table.concat(hint, " | ")
+        if #hint > 4 then
+            short[#short + 1] = name .. ":" .. #hint
+        end
+        if not joined:find("Goal:", 1, true) or not joined:find("Keys:", 1, true) then
+            missing[#missing + 1] = name
+        end
+    end
+
+    check("hints: every game keeps the hint to 4 lines", #short == 0, table.concat(short, " "))
+    check("hints: every game names a goal and keys", #missing == 0, table.concat(missing, " "))
+
+    local ci = require("vim-be-good.games.ci"):new("easy", { config = { width = 80, height = 34 } })
+    ci:getConfig()
+    local ciHint = table.concat(ci:getInstructions(), " | ")
+    check("hints: ci{ names ci{ and ci[", ciHint:find("ci{", 1, true) and ciHint:find("ci[", 1, true) ~= nil)
+    check("hints: ci{ uses the configured escape key", ciHint:find("jj", 1, true) ~= nil, ciHint)
+end
+
+-- hints: the lookup must report only keys that really leave insert mode.
+do
+    local Hints = require("vim-be-good.hints")
+
+    vim.keymap.del("i", "jj")
+    check("hints: no mapping falls back to Esc", Hints.escape() == "Esc", Hints.escape())
+
+    vim.keymap.set("i", "jk", "<Esc>a")
+    check("hints: a mapping that re-enters insert mode is refused", Hints.escape() == "Esc", Hints.escape())
+
+    vim.keymap.del("i", "jk")
+    vim.keymap.set("i", "kj", "<Esc>")
+    check("hints: a plain Esc mapping is used", Hints.escape() == "kj", Hints.escape())
+    vim.keymap.del("i", "kj")
+end
+
+-- ci{: the keys named in the hint must actually win the round.
+do
+    local Ci = require("vim-be-good.games.ci")
+    local escape = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
+    local wins = 0
+
+    for variant = 1, 2 do
+        local bufnr, window, buffer = newBuffer()
+        vim.api.nvim_win_set_buf(0, bufnr)
+
+        local round = Ci:new("easy", window)
+        round:getConfig()
+        round.config.ifStatement = variant == 1
+
+        local board = round:render()
+        buffer:setInstructions(round:getInstructions())
+        buffer:render(board)
+
+        local firstLine
+        for idx, text in ipairs(board) do
+            if text == "[" or text:match("^if %(.*%) {$") then
+                firstLine = idx
+                break
+            end
+        end
+
+        local row = #round:getInstructions() + firstLine + 2
+        vim.api.nvim_win_set_cursor(0, { row, 0 })
+        vim.cmd("stopinsert")
+        vim.cmd("silent! normal! " .. (variant == 1 and "ci{bar" or "ci[bar") .. escape)
+
+        if round:checkForWin() then
+            wins = wins + 1
+        end
+    end
+
+    -- normal! runs without mappings, so this proves the text objects and bar;
+    -- the escape lookup is covered by the checks above.
+    check("hints: ci{ wins with the hinted text objects in both variants", wins == 2, wins .. " of 2")
+end
+
 -- window: a headless run has no UI, so the size must come from vim.o.
 do
     local WindowHandler = require("vim-be-good.window")

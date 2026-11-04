@@ -2,9 +2,15 @@ local GameUtils = require("vim-be-good.game-utils")
 local log = require("vim-be-good.log")
 local gameLineCount = 5
 
-local instructions = {
-    "use w and dw to delete the different word in the line",
-}
+local function hints()
+    local Hints = require("vim-be-good.hints")
+
+    return {
+        "Goal: delete the word that differs, the other five are the same word",
+        string.format("Keys: %s / %s to reach it, then %s",
+            Hints.key("w"), Hints.key("b"), Hints.key("dw")),
+    }
+end
 
 local Words = {}
 function Words:new(difficulty, window)
@@ -19,7 +25,7 @@ function Words:new(difficulty, window)
 end
 
 function Words:getInstructions()
-    return instructions
+    return hints()
 end
 
 function Words:getConfig()

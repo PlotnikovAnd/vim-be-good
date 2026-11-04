@@ -2,23 +2,18 @@ local GameUtils = require("vim-be-good.game-utils")
 local log = require("vim-be-good.log")
 local gameLineCount = 20
 
-local instructions = {
-    "Replace the content of the outer container, or the executable content of the if statement, with \"bar\"",
-    "",
-    "e.g.:",
-    "if (foo) {       if (foo) {",
-    "  qux        ->    bar",
-    "}                }",
-    "",
-    "[                    [",
-    "   item1,            bar",
-    "   item1,       ->   ]",
-    "   item1,",
-    "   item1,",
-    "]",
-    "----------------------------------------------------------------------",
-    "",
-}
+-- Keys come from the loaded config, so the escape hint matches the player setup.
+local function hints()
+    local Hints = require("vim-be-good.hints")
+
+    return {
+        "Goal: replace what is inside the first { } or [ ] with bar",
+        string.format("Keys: cursor inside the brackets -> %s or %s -> bar -> %s",
+            Hints.key("ci{"), Hints.key("ci["), Hints.escape()),
+        "An if statement keeps its condition: if (x) { bar }",
+        "",
+    }
+end
 
 local CiRound = {}
 function CiRound:new(difficulty, window)
@@ -33,7 +28,7 @@ function CiRound:new(difficulty, window)
 end
 
 function CiRound:getInstructions()
-    return instructions
+    return hints()
 end
 
 function CiRound:getConfig()
@@ -70,10 +65,12 @@ function CiRound:checkForWin()
 end
 
 function CiRound:render()
-    local lines = GameUtils.createEmpty(gameLineCount)
-    local linesAfterInstructions = gameLineCount - #instructions
-    local insertionIndex = GameUtils.getRandomInsertionLocation(gameLineCount, 6)
-    local goHigh = insertionIndex < gameLineCount / 2 and math.random() > 0.5
+    -- The block takes six rows, so the board always has room for it.
+    local rows = GameUtils.boardRows(self.window, #hints(), gameLineCount, 7)
+    local lines = GameUtils.createEmpty(rows)
+    local linesAfterInstructions = rows - #hints()
+    local insertionIndex = GameUtils.getRandomInsertionLocation(rows, 6)
+    local goHigh = insertionIndex < rows / 2 and math.random() > 0.5
 
     local cursorIdx
     if goHigh then

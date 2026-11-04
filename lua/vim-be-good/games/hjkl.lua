@@ -10,11 +10,17 @@ local boardSizeOptions = {
     tpope = 10
 }
 
-local instructions = {
-    "Remove the x with using only h,j,k,l, and x. Remember, this is for you to be bettter.",
-    "Using the arrow keys only makes you dumber. Trust me, I am a scientist",
-    "",
-}
+local function hints()
+    local Hints = require("vim-be-good.hints")
+
+    return {
+        "Goal: remove the x, moving only with h j k l, then press x on it",
+        string.format("Keys: %s %s %s %s to move, then %s on the x",
+            Hints.key("h"), Hints.key("j"), Hints.key("k"), Hints.key("l"), Hints.key("x")),
+        "Arrow keys do not count as practice",
+        "",
+    }
+end
 
 local HjklRound = {}
 function HjklRound:new(difficulty, window)
@@ -29,7 +35,7 @@ function HjklRound:new(difficulty, window)
 end
 
 function HjklRound:getInstructions()
-    return instructions
+    return hints()
 end
 
 function HjklRound:getConfig()
@@ -60,7 +66,8 @@ function HjklRound:checkForWin()
 end
 
 function HjklRound:render()
-    local boardSize = boardSizeOptions[self.difficulty]
+    -- The board shrinks instead of pushing its last row out of the window.
+    local boardSize = GameUtils.boardRows(self.window, #hints(), boardSizeOptions[self.difficulty], 3)
     log.info("HjklRound:render: " .. boardSize)
     local lines = GameUtils.createEmpty(boardSize)
 

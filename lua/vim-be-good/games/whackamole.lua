@@ -1,11 +1,16 @@
 local GameUtils = require("vim-be-good.game-utils")
 local log = require("vim-be-good.log")
 
-local instructions = {
-    "Use vim movements to locate the character with the arrow under it as ",
-    "quickly as possible. Then invert the character's case to win.",
-    "",
-}
+local function hints()
+    local Hints = require("vim-be-good.hints")
+
+    return {
+        "Goal: put the cursor under the ^ and flip that character's case",
+        string.format("Keys: %s / %s for words, %s / %s for characters, then %s",
+            Hints.key("w"), Hints.key("b"), Hints.key("h"), Hints.key("l"), Hints.key("~")),
+        "",
+    }
+end
 
 local WhackAMoleRound = {}
 function WhackAMoleRound:new(difficulty, window)
@@ -21,7 +26,7 @@ function WhackAMoleRound:new(difficulty, window)
 end
 
 function WhackAMoleRound:getInstructions()
-    return instructions
+    return hints()
 end
 
 function WhackAMoleRound:getConfig()

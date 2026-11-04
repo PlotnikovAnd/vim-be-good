@@ -1,26 +1,26 @@
 local GameUtils = require("vim-be-good.game-utils")
 local log = require("vim-be-good.log")
 
-local instructions = {
-    "Test your ability to hop by relative line numbers",
-    "To win the game, delete the line that says \"DELETE_ME\"",
-}
-
 local maxBoardRows = 20
 local minBoardRows = 3
+
+-- Keys come from the loaded config, so a remapped motion shows up as mapped.
+local function hints()
+    local Hints = require("vim-be-good.hints")
+
+    return {
+        "Goal: delete the line that says DELETE_ME",
+        string.format("Keys: count + %s / %s to hop (12j), then %s on that line",
+            Hints.key("j"), Hints.key("k"), Hints.key("dd")),
+    }
+end
 
 -- The window also shows the debug line and the instructions above the board,
 -- so a small terminal gets a shorter board instead of an unreachable target.
 -- shortcut: below a 12-line terminal the header alone does not fit, upgrade to
 -- hiding the instructions when the window is that small.
 local function boardRows(window)
-    local height = window and window.config and window.config.height
-    if not height then
-        return maxBoardRows
-    end
-
-    local rows = math.floor(height) - 1 - #instructions
-    return math.max(minBoardRows, math.min(maxBoardRows, rows))
+    return GameUtils.boardRows(window, #hints(), maxBoardRows, minBoardRows)
 end
 
 -- Right-hand indent for the target, so a harder round needs a longer look at the
@@ -79,7 +79,7 @@ function RelativeRound:new(difficulty, window)
 end
 
 function RelativeRound:getInstructions()
-    return instructions
+    return hints()
 end
 
 function RelativeRound:getConfig()

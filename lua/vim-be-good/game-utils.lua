@@ -86,6 +86,19 @@ local function getTime()
     return vim.fn.reltimefloat(vim.fn.reltime())
 end
 
+-- How many board rows fit under the instructions in the game window.
+function boardRows(window, instructionLines, maxRows, minRows)
+    maxRows = maxRows or 20
+    minRows = minRows or 3
+
+    local height = window and window.config and window.config.height
+    if not height then
+        return maxRows
+    end
+
+    return math.max(minRows, math.min(maxRows, math.floor(height) - 1 - instructionLines))
+end
+
 local function getRoundCount(difficulty)
     -- Upstream used the dashed name; accept the underscore form the other
     -- options use as well. Vim script rejects dashes in variable names, so the
@@ -164,6 +177,7 @@ return {
     getRandomWord = getRandomWord,
     getRandomSentence = getRandomSentence,
     createEmpty = createEmpty,
+    boardRows = boardRows,
     getTime = getTime,
     trimString = trimString,
     trimLines = trimLines,
